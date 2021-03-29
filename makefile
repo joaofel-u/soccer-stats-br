@@ -4,10 +4,11 @@ export SRCDIR=$(ROOTDIR)/src
 export BINDIR=$(ROOTDIR)/bin
 export LIBDIR=$(ROOTDIR)/lib
 export BUILDDIR=$(ROOTDIR)/build
+export RSRCDIR=$(ROOTDIR)/src/main/resources
 
 # Compiler and Compilation Flags
 export JC = javac
-export JCFLAGS = -g -d $(BINDIR) -classpath $(CLASSPATH) -Werror
+export JCFLAGS = -g -d $(BINDIR) -classpath $(CLASSPATH)
 
 # Execution Flags
 export JAVA = java
@@ -18,7 +19,7 @@ export JFLAGS = -classpath $(CLASSPATH)
 USERCLASSPATH=.
 
 # Criando classpath dinâmico
-TMPCLASSPATH=$(USERCLASSPATH):$(realpath $(BASE)$(BINDIR))
+TMPCLASSPATH=$(USERCLASSPATH):$(realpath $(BASE)$(BINDIR)):$(RSRCDIR)
 ifneq (,$(wildcard $(lib)/*))
 	CLASSPATH=$(TMPCLASSPATH):$(LIBDIR)/*
 endif
@@ -37,5 +38,6 @@ make-dirs:
 	@mkdir -p $(BINDIR)
 
 clean:
-	#$(MAKE) -C src clean
+	$(MAKE) -C src clean
 	$(RM) -rf $(BINDIR)
+	$(RM) temp/*

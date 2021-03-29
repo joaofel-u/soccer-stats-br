@@ -2,10 +2,10 @@
 all: main-all
 
 # Cleans Everything
-clean: main-clean
+clean: test-clean
 
 main-all:
 	$(MAKE) -C main all
 
-main-clean:
-	$(MAKE) -C main clean
+test-clean:
+	$(MAKE) -C test clean

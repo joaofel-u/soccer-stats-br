@@ -1,17 +1,16 @@
 package main.app;
 
-import main.crawler.Crawler;
-import edu.uci.ics.crawler4j.crawler.*;
+import main.crawler.CrawlerController;
 
 class Main {
     public static void main(String args[]) {
-        Crawler myCrawler = new Crawler();
-        CrawlConfig config = new CrawlConfig();
-
-        System.out.println(config.getClass().toString());
-        
-        System.out.println("Hello world!");
+        CrawlerController myCrawler = new CrawlerController();
     
-        myCrawler.hello();
+        try {
+            myCrawler.crawl();
+        } catch (Exception ex) {
+            System.out.println("An exception occured");
+            ex.printStackTrace();
+        }
     }
 }
