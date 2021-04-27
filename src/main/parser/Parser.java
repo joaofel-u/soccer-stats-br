@@ -1,7 +1,5 @@
 package main.parser;
 
-import main.test.Test;
-
 import java.io.FileWriter;
 import java.util.HashSet;
 import java.util.Set;
@@ -9,6 +7,9 @@ import java.util.Set;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 public class Parser {
     public static void printTable(String html, String url) {
@@ -18,15 +19,20 @@ public class Parser {
         /* Recupera a tabela de classificacao. */
         for (Element divClassificacao : doc.select("div#classificacao")) {
             for (Element tabelaClassificacao : divClassificacao.select("table#table_classificacao")) {
+                JSONObject campeonato = new JSONObject();
                 Boolean empty = true;
                 String tableString = "";
 
+                campeonato.put("url", url);
+
                 try {
-                    FileWriter writer = new FileWriter(System.getProperty("user.dir") + "/temp/out.txt", true);
+                    JSONArray classificacao = new JSONArray();
+                    FileWriter writer = new FileWriter(System.getProperty("user.dir") + "/temp/out.json", true);
                     tableString += urlPieces[4] + " " + urlPieces[5] + "\n";
 
                     /* Percorre a tabela. */
                     for (Element line : tabelaClassificacao.select("tr.linha-class")) {
+                        JSONObject equipe = new JSONObject();
                         String participante = "";
                         int pg = Integer.MIN_VALUE, j = Integer.MIN_VALUE;
                         int v = Integer.MIN_VALUE, e = Integer.MIN_VALUE;
@@ -45,33 +51,49 @@ public class Parser {
                             empty = false;
                         }
 
+                        equipe.put("nome", participante);
+
                         /* Recupera o número de pontos ganhos. */
                         for (Element column : line.select("td.coluna-pg"))
                             pg = Integer.parseInt(column.text());
+
+                        equipe.put("PG", pg);
 
                         /* Recupera o número de jogos disputados. */
                         for (Element column : line.select("td.coluna-j"))
                             j = Integer.parseInt(column.text());
 
+                        equipe.put("J", j);
+
                         /* Recupera o número de vitorias. */
                         for (Element column : line.select("td.coluna-v"))
                             v = Integer.parseInt(column.text());
+
+                        equipe.put("V", v);
 
                         /* Recupera o número de empates. */
                         for (Element column : line.select("td.coluna-e"))
                             e = Integer.parseInt(column.text());
 
+                        equipe.put("E", e);
+
                         /* Recupera o número de derrotas. */
                         for (Element column : line.select("td.coluna-d"))
                             d = Integer.parseInt(column.text());
+
+                        equipe.put("D", d);
 
                         /* Recupera o número de gols marcados. */
                         for (Element column : line.select("td.coluna-gp"))
                             gp = Integer.parseInt(column.text());
 
+                        equipe.put("GP", gp);
+
                         /* Recupera o número de gols sofridos. */
                         for (Element column : line.select("td.coluna-gc"))
                             gc = Integer.parseInt(column.text());
+
+                        equipe.put("GC", gc);
 
                         /* Faz um assert nos valores recuperados. */
                         // Test.assertDifferentString(participante, "");
@@ -86,14 +108,29 @@ public class Parser {
                         /* Calcula o saldo de gols. */
                         sg = (gp - gc);
 
+                        equipe.put("SG", sg);
+
+                        classificacao.add(equipe);
+
                         tableString += (participante + " " + pg + " " + j +
                             " " + v + " " + e + " " + d + " " + gp + " " + gc + " " + sg + "\n");
                     }
 
                     if (empty)
+                    {
                         System.out.println("Empty table...");
+                        campeonato.put("empty", true);
+                    }
+                    else
+                    {
+                        campeonato.put("empty", false);
+                        campeonato.put("classificacao", classificacao);
 
-                    writer.append(tableString + "\n");
+                        writer.append(campeonato.toJSONString());
+                        writer.flush();
+                    }
+
+                    // writer.append(tableString + "\n");
 
                     writer.close();
 

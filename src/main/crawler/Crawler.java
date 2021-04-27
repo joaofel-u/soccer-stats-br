@@ -30,15 +30,38 @@ public class Crawler extends WebCrawler {
         System.setProperty("webdriver.chrome.driver", "/usr/bin/chromedriver");
     }
 
-    public boolean shouldVisitUrl(String url) {
+    public boolean shouldVisitOGOL(String url) {
+        boolean result;
+
+        result = url.contains("edicao") || url.contains("edition");
+
+        return (result);
+    }
+
+    public boolean shouldVisitSRGOOL(String url) {
         boolean result;
 
         result = !EXCLUSIONS.matcher(url).matches() &&
-                (url.startsWith("https://srgoool.com.br") || url.startsWith("http://srgoool.com.br") || url.startsWith("https://www.srgoool.com.br") || url.startsWith("http://www.srgoool.com.br")) &&
                 url.contains("classificacao") &&
                 url.contains("2020") &&
                 !url.contains("simulador") &&
                 !url.contains("ranking");
+
+        return (result);
+    }
+
+    public boolean shouldVisitUrl(String url) {
+        boolean result;
+
+        /* Removes www from string to make url checking easier. */
+        String temp = url.replace("www.", "");
+
+        if (temp.startsWith("https://srgoool.com.br") || temp.startsWith("http://srgoool.com.br"))
+            result = shouldVisitSRGOOL(url);
+        else if (temp.startsWith("https://ogol.com.br") || temp.startsWith("http://ogol.com.br"))
+            result = shouldVisitOGOL(url);
+        else
+            result = true;
 
         return (result);
     }

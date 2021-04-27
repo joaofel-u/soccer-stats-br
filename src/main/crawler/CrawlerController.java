@@ -27,10 +27,11 @@ public class CrawlerController {
         RobotstxtServer robotstxtServer = new RobotstxtServer(robotstxtConfig, pageFetcher);
         CrawlController controller = new CrawlController(config, pageFetcher, robotstxtServer);
 
-        controller.addSeed("https://www.srgoool.com.br/");
+        controller.addSeed("https://www.srgoool.com.br/classificacao/Brasileirao/Serie-A/2020");
+        //controller.addSeed("https://www.ogol.com.br");
 
         /* Creates the output file. */
-        File resource = new File(System.getProperty("user.dir") + "/temp/out.txt");
+        File resource = new File(System.getProperty("user.dir") + "/temp/out.json");
         resource.createNewFile();
 
         CrawlerStatistics stats = new CrawlerStatistics();
