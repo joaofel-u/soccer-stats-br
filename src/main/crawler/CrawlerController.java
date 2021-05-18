@@ -16,19 +16,21 @@ public class CrawlerController {
         //config.setMaxDepthOfCrawling(10);
         config.setMaxPagesToFetch(100);
         config.setMaxOutgoingLinksToFollow(2000);
-        config.setPolitenessDelay(3000);
+        config.setPolitenessDelay(10000);
         config.setIncludeHttpsPages(true);
         config.setUserAgentString("Soccer stats demo (Private educational project)");
 
-        int numCrawlers = 4;
+        int numCrawlers = 1;
 
         PageFetcher pageFetcher = new PageFetcher(config);
         RobotstxtConfig robotstxtConfig = new RobotstxtConfig();
         RobotstxtServer robotstxtServer = new RobotstxtServer(robotstxtConfig, pageFetcher);
         CrawlController controller = new CrawlController(config, pageFetcher, robotstxtServer);
 
-        controller.addSeed("https://www.srgoool.com.br/classificacao/Brasileirao/Serie-A/2020");
+        //controller.addSeed("https://www.srgoool.com.br/");
+        controller.addSeed("https://srgoool.com.br/classificacao/Brasileirao/Serie-A/2020");
         //controller.addSeed("https://www.ogol.com.br");
+        //controller.addSeed("https://www.ogol.com.br/edition.php?id_edicao=149801");
 
         /* Creates the output file. */
         File resource = new File(System.getProperty("user.dir") + "/temp/out.json");
