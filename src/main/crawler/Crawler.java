@@ -151,10 +151,11 @@ public class Crawler extends WebCrawler {
 
                 System.out.println("Before scripts");
 
-                j.executeScript("let options = arguments[0].options; n" +
-                                "for (let opt, j = 0; opt = options[j]; j++) { n" +
-                                "if (opt.text === 2020) { n" +
-                                "arguments[0].selectedIndex = j; n" +
+                j.executeScript("let options = arguments[0].options; \n" +
+                                "for (let opt, j = 0; opt = options[j]; j++) { \n" +
+                                "if (opt.text === '2020') { \n" +
+                                "arguments[0].selectedIndex = j; \n" +
+                                "arguments[0].onchange(); \n" +
                                 "break; } }", select);
 
                 System.out.println("After script");
@@ -165,17 +166,17 @@ public class Crawler extends WebCrawler {
                 //WebDriverWait wait = new WebDriverWait(driver, 2);
                 try {
                     //wait.until(ExpectedConditions.elementToBeClickable(select));
-                    System.out.println("Before first");
-                    dropYear.selectByIndex(2);
-                    System.out.println(dropYear.getFirstSelectedOption().getText());
-                    System.out.println("After first");
+                    // System.out.println("Before first");
+                    // dropYear.selectByIndex(2);
+                    // System.out.println(dropYear.getFirstSelectedOption().getText());
+                    // System.out.println("After first");
 
-                    dropYear.selectByVisibleText("2020");
+                    // dropYear.selectByVisibleText("2020");
                     System.out.println("Changed selection");
 
                     //actions.moveToElement(element).click().perform();
 
-                    Thread.sleep(1000);
+                    Thread.sleep(10000);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }

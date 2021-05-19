@@ -1,6 +1,10 @@
 package main.crawler;
 
 import java.io.File;
+import java.io.FileWriter;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 import edu.uci.ics.crawler4j.crawler.CrawlConfig;
 import edu.uci.ics.crawler4j.crawler.CrawlController;
@@ -28,13 +32,25 @@ public class CrawlerController {
         CrawlController controller = new CrawlController(config, pageFetcher, robotstxtServer);
 
         //controller.addSeed("https://www.srgoool.com.br/");
-        controller.addSeed("https://srgoool.com.br/classificacao/Brasileirao/Serie-A/2020");
+        //controller.addSeed("https://srgoool.com.br/classificacao/Brasileirao/Serie-A/2020");
         //controller.addSeed("https://www.ogol.com.br");
-        //controller.addSeed("https://www.ogol.com.br/edition.php?id_edicao=149801");
+        controller.addSeed("https://www.ogol.com.br/edition.php?id_edicao=149801");
+        controller.addSeed("https://www.ogol.com.br/edicao.php?id_edicao=154298");
 
         /* Creates the output file. */
         File resource = new File(System.getProperty("user.dir") + "/temp/out.json");
         resource.createNewFile();
+
+        /* Adds the base JSONArray to this output file. */
+        JSONObject obj = new JSONObject();
+        JSONArray campeonatos = new JSONArray();
+
+        obj.put("campeonatos", campeonatos);
+
+        FileWriter writer = new FileWriter(resource);
+        writer.write(obj.toJSONString());
+        writer.flush();
+        writer.close();
 
         CrawlerStatistics stats = new CrawlerStatistics();
         CrawlController.WebCrawlerFactory<Crawler> factory = () -> new Crawler(stats);
