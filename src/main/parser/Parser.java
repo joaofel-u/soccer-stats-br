@@ -10,7 +10,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.json.simple.parser.JSONParser;
 
 import org.json.simple.JSONArray;
@@ -184,38 +185,75 @@ public class Parser {
 
                 /* Main table or auxiliary ones? */
                 if (table.hasAttr("id") && table.id().equals("datatable")) {
-                    for (Element line : table.select("tr")) {
-                        Elements cells = line.select("td");
-                        Team team;
+                    int firstIndex;
+                    Elements tableWrappers = new Elements();
 
-                        /* Avoids unwanted lines. */
-                        if (cells.size() == 0)
-                            continue;
+                    System.out.println("Classification table...");
 
-                        String name = cells.get(2).text();
-                        int p  = Integer.parseInt(cells.get(3).text());
-                        int j  = Integer.parseInt(cells.get(4).text());
-                        int v  = Integer.parseInt(cells.get(5).text());
-                        int e  = Integer.parseInt(cells.get(6).text());
-                        int d  = Integer.parseInt(cells.get(7).text());
-                        int gp = Integer.parseInt(cells.get(8).text());
-                        int gc = Integer.parseInt(cells.get(9).text());
+                    /* Is not a Complete table? */
+                    if (table.selectFirst("tr").select("th").size() < 8) {
+                        /* Adds all auxiliary tables to tableWrappers. */
+                        for (Element subBox : box.select("div.footer")) {
+                            System.out.println("An auxiliary table...");
+                            Element auxLink = subBox.selectFirst("a");
+                            String pageSource;
+                            Document aux;
 
-                        /* Already registered? */
-                        if ((team = teams.get(name)) == null) {
-                            team = new Team(name);
-                            teams.put(name, team);
+                            WebDriver driver = new ChromeDriver();
+                            driver.get("https://www.ogol.com.br" + auxLink.attr("href"));
+
+                            pageSource = driver.getPageSource();
+                            driver.quit();
+
+                            aux = Jsoup.parse(pageSource);
+
+                            tableWrappers.add(aux.selectFirst("table#datatable"));
                         }
 
-                        team.updatePoints(p);
-                        team.updateGames(j);
-                        team.updateVictories(v);
-                        team.updateDraws(e);
-                        team.updateLosses(d);
-                        team.updateGoalsPro(gp);
-                        team.updateGoalsAgainst(gc);
+                        firstIndex = 1;
+                    } else {
+                        System.out.println("Found main table");
+                        tableWrappers.add(table);
+                        firstIndex = 2;
+                    }
+
+                    /* Collects data from all auxiliary tables. */
+                    for (Element tableAux : tableWrappers) {
+                        for (Element line : tableAux.select("tr")) {
+                            Elements cells = line.select("td");
+                            Team team;
+    
+                            /* Avoids unwanted lines. */
+                            if (cells.size() == 0)
+                                continue;
+    
+                            String name = cells.get(firstIndex).text();
+                            int p  = Integer.parseInt(cells.get(firstIndex+1).text());
+                            int j  = Integer.parseInt(cells.get(firstIndex+2).text());
+                            int v  = Integer.parseInt(cells.get(firstIndex+3).text());
+                            int e  = Integer.parseInt(cells.get(firstIndex+4).text());
+                            int d  = Integer.parseInt(cells.get(firstIndex+5).text());
+                            int gp = Integer.parseInt(cells.get(firstIndex+6).text());
+                            int gc = Integer.parseInt(cells.get(firstIndex+7).text());
+    
+                            /* Already registered? */
+                            if ((team = teams.get(name)) == null) {
+                                team = new Team(name);
+                                teams.put(name, team);
+                            }
+    
+                            team.updatePoints(p);
+                            team.updateGames(j);
+                            team.updateVictories(v);
+                            team.updateDraws(e);
+                            team.updateLosses(d);
+                            team.updateGoalsPro(gp);
+                            team.updateGoalsAgainst(gc);
+                        }
                     }
                 } else {
+                    System.out.println("Found a results table...");
+
                     for (Element line : table.select("tr")) {
                         Elements cells = line.select("td");
                         Team team1, team2;
@@ -225,10 +263,10 @@ public class Parser {
                         if (cells.size() == 0)
                             continue;
 
-                        // String name1 = line.selectFirst("td.text.home").text();
-                        // String name2 = line.selectFirst("td.text.away").text();
-                        String name1 = cells.get(0).text();
-                        String name2 = cells.get(2).text();
+                        String name1 = line.select("td.text").get(0).text();
+                        String name2 = line.select("td.text").get(1).text();
+                        // String name1 = cells.get(0).text();
+                        // String name2 = cells.get(2).text();
 
                         if ((team1 = teams.get(name1)) == null) {
                             team1 = new Team(name1);
