@@ -12,8 +12,7 @@ const opcoes = {
   cert: fs.readFileSync(path.resolve(__dirname, '../cert/cert.pem'))
 }
 
-const rawData = fs.readFileSync('src/out.json')
-
+const rawData = fs.readFileSync('../../temp/out.json')
 const dados = JSON.parse(rawData)
 
 const app = express()
