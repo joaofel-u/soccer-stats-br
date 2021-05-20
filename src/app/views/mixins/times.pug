@@ -15,6 +15,7 @@ mixin times(times)
             th Gols Pró
             th Gols Contra
             th Saldo Gols
+            th Aproveitamento
         tbody
           each time in tabela
             tr
@@ -27,3 +28,4 @@ mixin times(times)
               td= time.GP
               td= time.GC
               td= time.SG
+              td= time.APR
