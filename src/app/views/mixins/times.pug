@@ -1,0 +1,29 @@
+mixin times(times)
+  if times.length == 0
+    .notification.is-warning
+      p Não há times.
+  else
+      table.table.is-striped.is-hoverable.is-bordered
+        thead
+          tr
+            th Time
+            th Pontos
+            th Jogos
+            th Vitórias
+            th Empates
+            th Derrotas
+            th Gols Pró
+            th Gols Contra
+            th Saldo Gols
+        tbody
+          each time in tabela
+            tr
+              td= time.nome
+              td= time.PG
+              td= time.J
+              td= time.V
+              td= time.E
+              td= time.D
+              td= time.GP
+              td= time.GC
+              td= time.SG
