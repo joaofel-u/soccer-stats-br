@@ -3,7 +3,7 @@ import fs from 'fs'
 import path from 'path'
 
 import express from 'express'
-import {consultaInicial, consultaPesquisaPorAltura} from './controle'
+import {consultaInicial} from './controle'
 
 const porta = 3000
 const msgNoAr = `Servidor no ar, porta ${porta}`
@@ -20,8 +20,6 @@ const app = express()
 app.set('view engine', 'pug')
 
 app.get('/', (req, res) => consultaInicial(res, dados))
-
-app.get('/pesquisePorAltura', (req, res) => consultaPesquisaPorAltura(req, res, dados))
 
 const server = https.createServer(opcoes, app)
 

@@ -1,34 +1,21 @@
-// controle.js
-
-/**
- * Função que gera a página inicial da aplicação.
- * @param http.ClientResponse res Objeto que conterá a resposta HTTP.
- * @param {titulo, equipe} dados Dados usados na aplicação.
- */
 function consultaInicial (res, dados) {
-  const index = {
-    titulo: dados.campeonatos[0].name,
-    tabela: dados.campeonatos[0].classificacao
-  }
+  let index = auxiliaConsulta(dados);
+
   res.render('index', index)
 }
 
-/**
- * Função que gera a página que mostra apenas os atletas com uma altura mínima
- * @param  req Requisição HTTP enviada pelo usuário.
- * @param  res Resposta HTTP a ser enviada para o browser.
- * @param  dados Dados da aplicação.
- */
-function consultaPesquisaPorAltura (req, res, dados) {
-  const alturaMinima = parseInt(req.query.altura_minima)
-  const atletas = dados.equipe.encontreAtletasComAlturmaMinima(alturaMinima)
-  const resposta = {
-    nome: dados.equipe.nome,
-    titulo: dados.titulo,
-    alturaMinima,
-    atletas
+function auxiliaConsulta (dados) {
+  let index = {
+    titulo: '',
+    tabela: ''
   }
-  res.render('resposta', resposta)
+
+  for (let i = 0; i < dados.campeonatos.length; ++i) {
+    index.titulo = dados.campeonatos[i].name
+    index.tabela = dados.campeonatos[i].classificacao
+  }
+
+  return index;
 }
 
-export {consultaInicial, consultaPesquisaPorAltura}
+export {consultaInicial}
