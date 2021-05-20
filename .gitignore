@@ -23,3 +23,5 @@ hs_err_pid*
 
 # Crawler4J Resources folder
 test/resources/crawler/**
+
+# Node Modules

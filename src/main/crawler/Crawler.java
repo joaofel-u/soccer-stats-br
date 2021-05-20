@@ -1,6 +1,7 @@
 package main.crawler;
 
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
 
 import org.openqa.selenium.By;
@@ -9,11 +10,9 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import ch.qos.logback.core.joran.conditional.ElseAction;
 import edu.uci.ics.crawler4j.crawler.Page;
 import edu.uci.ics.crawler4j.crawler.WebCrawler;
 import edu.uci.ics.crawler4j.parser.HtmlParseData;
@@ -23,9 +22,10 @@ import main.parser.Parser;
 
 public class Crawler extends WebCrawler {
 
+    public static String OGolHome = "https://www.ogol.com.br/compet.php?gen=1&tipo=0&ambito=0&nivel=0&esc=0&mod=1&formato=0&continente=4&idpais=6&stats=0";
+
     private final static Pattern EXCLUSIONS = Pattern.compile(".*(\\.(css|gif|jpg|png|mp3|mp4|zip|gz|csv))$");
     private CrawlerStatistics stats;
-    private boolean extractedMenu = false;
 
     public Crawler(CrawlerStatistics stats) {
         this.stats = stats;
@@ -35,7 +35,7 @@ public class Crawler extends WebCrawler {
     public boolean shouldVisitOGOL(String url) {
         boolean result;
 
-        result = (url.contains("edicao") || url.contains("edition") || url.contains("associacao")) &&
+        result = (url.contains("edicao") || url.contains("edition") || url.contains("associacao")) || url.contains("competicao") &&
                 (!url.contains("transfer") && !url.contains("comparacao") && !url.contains("matches") && !url.contains("winner") &&
                 !url.contains("arbitro") && !url.contains("top") && !url.contains("photo") && !url.contains("video") &&
                 !url.contains("mapa") && !url.contains("stats") && !url.contains("jogo") && !url.contains("agenda") &&
@@ -81,6 +81,9 @@ public class Crawler extends WebCrawler {
         String urlString = url.getURL().toLowerCase();
         boolean result = shouldVisitUrl(urlString);
 
+        if (urlString.contains("captcha"))
+            System.out.println("Recaptcha...");
+
         // if (result)
         //     System.out.println("Should visit " + urlString);
         // else
@@ -96,6 +99,16 @@ public class Crawler extends WebCrawler {
 
         this.stats.incrementProcessedPageCount(1);
         System.out.println("Visiting " + url);
+
+        try {
+            if (url.contains("captcha")) {
+                System.out.println("Droga");
+                Thread.sleep(10 * 1000);
+                return;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
 
         if (page.getParseData() instanceof HtmlParseData) {
             HtmlParseData htmlParseData = (HtmlParseData) page.getParseData();
@@ -120,13 +133,21 @@ public class Crawler extends WebCrawler {
                 String domain = page.getWebURL().getDomain();
                 System.out.println("-----------------------------------------------------------");
                 System.out.println("Extracting links from ogol");
-                extractOGolLinks(url, domain);
+                extractOGolLinks(url, domain, page);
                 System.out.println("-----------------------------------------------------------");
                 return;
             }
 
             WebDriver driver = new ChromeDriver();
             driver.get(url);
+
+            try {
+                int random = ThreadLocalRandom.current().nextInt(5, 16);
+                System.out.println("Sleeping a little");
+                Thread.sleep(random * 1000);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
 
             System.out.println("Getting page source");
 
@@ -140,45 +161,60 @@ public class Crawler extends WebCrawler {
                 Parser.parseSrGoool(pageSource, url);
             }
             else if (temp.startsWith("https://ogol.com.br") || temp.startsWith("http://ogol.com.br")) {
+                
+                // COMPETITION PAGE
+                if (url.contains("competicao")) {
+                    WebElement edition = driver.findElement(By.id("page_main")).findElement(By.tagName("table")).findElement(By.tagName("a"));
+                    System.out.println("Competicao");
+                    scheduleURL(edition.getAttribute("href"), 0);
+                    driver.quit();
+                    return;
+                } else if (url.contains("associacao")) { // ASSOCIATION PAGE
+                    WebElement edition = driver.findElement(By.id("page_main")).findElement(By.className("box")).findElement(By.className("nivel1")).findElement(By.tagName("a"));
+                    System.out.println("Associacao");
+                    scheduleURL(edition.getAttribute("href"), 0);
+                    driver.quit();
+                    return;
+                }
+                
                 /* Extracts combo box. */
                 WebElement topDiv = driver.findElement(By.className("top"));
+                WebElement factSheet = topDiv.findElement(By.className("factsheet"));
                 WebElement combo = topDiv.findElement(By.className("combo"));
                 WebElement select = combo.findElement(By.tagName("select"));
-                Select dropYear = new Select(select);
-                Actions actions = new Actions(driver);
+                WebElement comp = factSheet.findElement(By.className("name"));
 
-                JavascriptExecutor j = (JavascriptExecutor) driver;
+                /* Is it a desired page? */
+                if (factSheet.findElements(By.className("micrologo_and_text")).size() == 0) {
+                    System.out.println(comp.getText() + " is not a Brazil competition");
+                    driver.quit();
+                    return;
+                }
 
-                System.out.println("Before scripts");
+                WebElement org = factSheet.findElement(By.className("micrologo_and_text")).findElement(By.className("text"));
+                if (!(org.getText().contains("Brasil")))
+                {
+                    System.out.println(comp.getText() + " is not a Brazil competition");
+                    driver.quit();
+                    return;
+                }
 
-                j.executeScript("let options = arguments[0].options; \n" +
-                                "for (let opt, j = 0; opt = options[j]; j++) { \n" +
-                                "if (opt.text === '2020') { \n" +
-                                "arguments[0].selectedIndex = j; \n" +
-                                "arguments[0].onchange(); \n" +
-                                "break; } }", select);
+                /* Already 2020 edition? */
+                if (!(comp.getText().contains("2020"))) {
+                    System.out.println("Changing selection for " + comp.getText());
+                    JavascriptExecutor j = (JavascriptExecutor) driver;
 
-                System.out.println("After script");
+                    j.executeScript("let options = arguments[0].options; \n" +
+                                    "for (let opt, j = 0; opt = options[j]; j++) { \n" +
+                                    "if (opt.text === '2020') { \n" +
+                                    "arguments[0].selectedIndex = j; \n" +
+                                    "arguments[0].onchange(); \n" +
+                                    "break; } }", select);
 
-                //actions.moveToElement(select).click().perform();
+                    scheduleURL(driver.getCurrentUrl(), 0);
 
-                /* Select correct edition of competition. */
-                //WebDriverWait wait = new WebDriverWait(driver, 2);
-                try {
-                    //wait.until(ExpectedConditions.elementToBeClickable(select));
-                    // System.out.println("Before first");
-                    // dropYear.selectByIndex(2);
-                    // System.out.println(dropYear.getFirstSelectedOption().getText());
-                    // System.out.println("After first");
-
-                    // dropYear.selectByVisibleText("2020");
-                    System.out.println("Changed selection");
-
-                    //actions.moveToElement(element).click().perform();
-
-                    Thread.sleep(10000);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
+                    driver.quit();
+                    return;
                 }
 
                 pageSource = driver.getPageSource();
@@ -289,46 +325,59 @@ public class Crawler extends WebCrawler {
         logger.info("Found " + links_set_size + " new links!");
     }
 
-    public void extractOGolLinks(String url, String domain) {
+    public void extractOGolLinks(String url, String domain, Page page) {
+        HtmlParseData htmlParseData = (HtmlParseData) page.getParseData();
         String pageSource;
         Select dropYear;
         WebDriver driver;
+        Actions actions;
         Set<String> links;
         int links_set_size = 0;
 
         System.out.println("Extracting links from OGol main page...");
 
         driver = new ChromeDriver();
-        driver.get(url);
+        actions = new Actions(driver);
+        driver.get(Crawler.OGolHome);
 
-        /* Closes annoying popup. */
-        // driver.navigate().refresh();
+        // WebElement box = driver.findElement(By.className("box"));
 
-        WebElement element = driver.findElements(By.className("cbp-hrmenu")).get(0);
-        WebElement element2 = element.findElement(By.linkText("COMPETIÇÕES"));
+        // for (WebElement element : box.findElements(By.className("micrologo_and_text"))) {
+        //     for (WebElement div : element.findElements(By.className("text"))) {
+        //         WebElement link;
 
-        Actions actions = new Actions(driver);
-
-        // /* Opens the dropdown menu. */
-        actions.moveToElement(element2).click().perform();
-
-        // for (WebElement element2 : element.findElements(By.className("select-menu-div"))) {
-        //     for (WebElement element3 : element2.findElements(By.className("select-menu"))) {
-        //         dropYear = new Select(element3);
-
-        //         WebDriverWait wait = new WebDriverWait(driver, 2);
-        //         try {
-        //             wait.until(ExpectedConditions.elementToBeClickable(element3));
-
-        //             dropYear.selectByVisibleText("2020");
-        //             System.out.println("Changed selection");
-
-        //             actions.moveToElement(element).click().perform();
-
-        //             Thread.sleep(1000);
-        //         } catch (Exception ex) {
-        //             ex.printStackTrace();
+        //         if (div.getText() == "") {
+        //             System.out.println("Continue");
+        //             continue;
         //         }
+
+        //         if (div.getText().contains("Extinto") || div.getText().contains("Sub") ||
+        //             div.getText().contains("Aspirante") || div.getText().contains("Júnior"))
+        //             continue;
+
+        //         link = div.findElement(By.tagName("a"));
+
+        //         WebDriver driver2 = new ChromeDriver();
+        //         String teste = link.getAttribute("href");
+        //         System.out.println(teste);
+        //         driver2.get(teste);
+        //         /* Gets new url. */
+        //         //driver.get("https://www.ogol.com.br/" + link.getAttribute("href"));
+
+        //         // COMPETITION PAGE
+        //         if (driver2.getCurrentUrl().contains("competicao")) {
+        //             WebElement edition = driver2.findElement(By.tagName("table")).findElement(By.tagName("a"));
+        //             System.out.println(edition.getAttribute("href"));
+        //         } else if (driver2.getCurrentUrl().contains("associacao")) { // ASSOCIATION PAGE
+        //             WebElement edition = driver2.findElement(By.className("nivel1"));
+        //             System.out.println(edition.getAttribute("href"));
+        //         } else {
+        //             System.out.println("Unwanted page");
+        //         }
+
+        //         // Going back to the previous page.
+        //         //driver.navigate().back();
+        //         driver2.quit();
         //     }
         // }
 
@@ -338,7 +387,8 @@ public class Crawler extends WebCrawler {
         links = Parser.getExternalLinks(pageSource, "https://" + domain);
 
         for (String link : links) {
-            //System.out.println("Identified " + link);
+            //String url2 = link.getURL();
+           // System.out.println("Identified " + link);
             if (shouldVisitUrl(link)) {
                 scheduleURL(link, 0);
                 links_set_size++;
