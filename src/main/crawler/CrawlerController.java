@@ -33,30 +33,27 @@ public class CrawlerController {
         CrawlController controller = new CrawlController(config, pageFetcher, robotstxtServer);
 
         //controller.addSeed("https://www.srgoool.com.br/");
-        controller.addSeed("https://srgoool.com.br/classificacao/Brasileirao/Serie-A/2020");
         //controller.addSeed("https://www.ogol.com.br/");
         
-        controller.addSeed("https://www.ogol.com.br/edition.php?id_edicao=149801");
-        controller.addSeed("https://www.ogol.com.br/edicao.php?id_edicao=154298");
-        controller.addSeed("https://www.ogol.com.br/edition.php?id_edicao=139360");
-        controller.addSeed("https://www.ogol.com.br/competicao.php?id_comp=51");
-        controller.addSeed("https://www.ogol.com.br/associacao.php?id=42");
-        controller.addSeed("https://www.ogol.com.br/edition.php?id_edicao=140824");
-        controller.addSeed("https://www.ogol.com.br/edition.php?id_edicao=142502");
-        controller.addSeed("https://www.ogol.com.br/edition.php?id_edicao=142587");
-        controller.addSeed("https://www.ogol.com.br/edition.php?id=140062");
-        controller.addSeed("https://www.ogol.com.br/edition.php?id=149653");
-        controller.addSeed("https://www.ogol.com.br/edition.php?id_edicao=140315");
-        controller.addSeed("https://www.ogol.com.br/edition.php?id_edicao=140084");
-        controller.addSeed("https://www.ogol.com.br/edition.php?id_edicao=140394");
-        controller.addSeed("https://www.ogol.com.br/edition.php?id_edicao=140332");
-        controller.addSeed("https://www.ogol.com.br/edition.php?id_edicao=140351");
-        controller.addSeed("https://www.ogol.com.br/edition.php?id_edicao=140579");
-        controller.addSeed("https://www.ogol.com.br/edition.php?id=146096");
-        controller.addSeed("https://www.ogol.com.br/edition.php?id=140958");
-        controller.addSeed("https://www.ogol.com.br/edition.php?id_edicao=140603");
-        controller.addSeed("https://www.ogol.com.br/edition.php?id_edicao=140443");
-        controller.addSeed("https://www.ogol.com.br/edition.php?id_edicao=140434");
+        //controller.addSeed("https://www.ogol.com.br/edition.php?id_edicao=140440");
+        //controller.addSeed("https://www.ogol.com.br/edition.php?id_edicao=142460");
+        //controller.addSeed("https://www.ogol.com.br/edition.php?id_edicao=139360");
+        //controller.addSeed("https://www.ogol.com.br/edition.php?id_edicao=140824");
+        //controller.addSeed("https://www.ogol.com.br/edition.php?id_edicao=142502");
+        //controller.addSeed("https://www.ogol.com.br/edition.php?id_edicao=142587");
+        //controller.addSeed("https://www.ogol.com.br/edition.php?id=140062");
+        //controller.addSeed("https://www.ogol.com.br/edition.php?id=149653");
+        //controller.addSeed("https://www.ogol.com.br/edition.php?id_edicao=140315");
+        //controller.addSeed("https://www.ogol.com.br/edition.php?id_edicao=140084");
+        //controller.addSeed("https://www.ogol.com.br/edition.php?id_edicao=140394");
+        //controller.addSeed("https://www.ogol.com.br/edition.php?id_edicao=140332");
+        //controller.addSeed("https://www.ogol.com.br/edition.php?id_edicao=140351");
+        //controller.addSeed("https://www.ogol.com.br/edition.php?id_edicao=140579");
+        //controller.addSeed("https://www.ogol.com.br/edition.php?id=146096");
+        //controller.addSeed("https://www.ogol.com.br/edition.php?id=140958");
+        //controller.addSeed("https://www.ogol.com.br/edition.php?id_edicao=140603");
+        //controller.addSeed("https://www.ogol.com.br/edition.php?id_edicao=140443");
+        //controller.addSeed("https://www.ogol.com.br/edition.php?id_edicao=140434");
 
         /* Creates the output file. */
         File resource = new File(System.getProperty("user.dir") + "/temp/out.json");

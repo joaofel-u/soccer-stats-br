@@ -8,20 +8,9 @@ html
     .container.is-fluid
       include includes/ine5646.pug
       .columns
-        .column.is-three-quarters
+        .column.is-four-quarters
             .message.is-info
               .message-header
-                p = Classificação: ${titulo}
+                p = Classificação Global com base no Aproveitamento Geral
               .message-body
                 +times(tabela)
-        .column
-            .message.is-primary
-              .message-header
-                p Pesquisar Atletas por Altura
-              .message-body
-                form(action='pesquisePorAltura' method='get')
-                  .field
-                    .label Altura Mínima
-                    .control
-                      input.input(name='altura_minima' type='number' required)
-                  button.button.is-primary(type='submit') Pesquisar
