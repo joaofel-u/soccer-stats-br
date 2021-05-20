@@ -16,6 +16,8 @@ mixin times(times)
             th Gols Contra
             th Saldo Gols
             th Aproveitamento
+            th Média de Gols Sofridos
+            th Média de Gols Feitos
         tbody
           each time in tabela
             tr
@@ -29,3 +31,5 @@ mixin times(times)
               td= time.GC
               td= time.SG
               td= time.APR
+              td= time.MGS
+              td= time.MGF

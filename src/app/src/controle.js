@@ -47,16 +47,21 @@ const tst2 = nomeTimesUnicos
         GP: 0,
         GC: 0,
         SG: 0,
-        APR: 0
+        APR: 0,
+        MGS: 0,
+        MGF: 0
       })
   })
   .map(time => ({
     ...time,
-    APR: (time.PG / (time.J * 3) * 100).toFixed(1)
+    APR: (time.PG / (time.J * 3) * 100).toFixed(1),
+    MGS: (time.GC / time.J).toFixed(1),
+    MGF: (time.GP / time.J).toFixed(1)
   }))
   .sort((a, b) => {
     return b.APR - a.APR
   })
+
   
   index.tabela = tst2;
 
