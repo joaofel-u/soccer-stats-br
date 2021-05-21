@@ -21,20 +21,27 @@ public class Parser {
     public static void parseSrGoool(String html, String url) {
         Document doc = Jsoup.parse(html);
         String urlPieces[] = url.split("/");
+        String title = urlPieces[4];
+        System.out.println(title);
 
         /* Recupera a tabela de classificacao. */
         for (Element divClassificacao : doc.select("div#classificacao")) {
             for (Element tabelaClassificacao : divClassificacao.select("table#table_classificacao")) {
-                JSONObject campeonato = new JSONObject();
-                Boolean empty = true;
-                String tableString = "";
-
-                campeonato.put("url", url);
-
                 try {
+                    JSONParser parser = new JSONParser();
+
+                    /* JSON Objects. */
+                    JSONObject campeonato = new JSONObject();
                     JSONArray classificacao = new JSONArray();
-                    FileWriter writer = new FileWriter(System.getProperty("user.dir") + "/temp/out.json", true);
-                    tableString += urlPieces[4] + " " + urlPieces[5] + "\n";
+
+                    JSONObject obj = (JSONObject) parser.parse(new FileReader(System.getProperty("user.dir") + "/temp/out.json"));
+                    JSONArray campeonatos = (JSONArray) obj.get("campeonatos");
+
+                    FileWriter writer = new FileWriter(System.getProperty("user.dir") + "/temp/out.json", false);
+
+                    campeonato.put("name", title);
+                    campeonato.put("url", url);
+                    campeonato.put("empty", true);
 
                     /* Percorre a tabela. */
                     for (Element line : tabelaClassificacao.select("tr.linha-class")) {
@@ -48,14 +55,6 @@ public class Parser {
                         /* Recupera o nome da equipe. */
                         for (Element column : line.select("td.coluna-participante"))
                             participante = column.text();
-
-                        /* Checks if table is empty. */
-                        if (empty) {
-                            if (participante.equals(""))
-                                break;
-
-                            empty = false;
-                        }
 
                         equipe.put("nome", participante);
 
@@ -117,29 +116,18 @@ public class Parser {
                         equipe.put("SG", sg);
 
                         classificacao.add(equipe);
-
-                        tableString += (participante + " " + pg + " " + j +
-                            " " + v + " " + e + " " + d + " " + gp + " " + gc + " " + sg + "\n");
                     }
 
-                    if (empty)
-                    {
-                        System.out.println("Empty table...");
-                        campeonato.put("empty", true);
-                    }
-                    else
-                    {
-                        campeonato.put("empty", false);
-                        campeonato.put("classificacao", classificacao);
+                    campeonato.put("classificacao", classificacao);
 
-                        writer.write(campeonato.toJSONString());
-                        writer.flush();
-                    }
+                    campeonatos.add(campeonato);
 
-                    // writer.append(tableString + "\n");
+                    /* Appends the competition to the output file. */
+                    writer.write(obj.toJSONString());
+                    writer.flush();
 
+                    /* Closes the output writer. */
                     writer.close();
-
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }  

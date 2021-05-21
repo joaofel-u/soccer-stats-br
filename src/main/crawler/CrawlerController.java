@@ -34,6 +34,13 @@ public class CrawlerController {
 
         //controller.addSeed("https://www.srgoool.com.br/");
         //controller.addSeed("https://www.ogol.com.br/");
+
+        controller.addSeed("https://www.srgoool.com.br/classificacao/Bundesliga/Unica/2020");
+        controller.addSeed("https://www.srgoool.com.br/classificacao/Copa-Suruga/Unica/2020");
+        controller.addSeed("https://www.srgoool.com.br/classificacao/La-Liga/Unica/2020");
+        controller.addSeed("https://www.srgoool.com.br/classificacao/Lega-Serie-A/Unica/2020");
+        controller.addSeed("https://www.srgoool.com.br/classificacao/Ligue-1/Unica/2020");
+        controller.addSeed("https://www.srgoool.com.br/classificacao/Premier-League/Unica/2020");
         
         //controller.addSeed("https://www.ogol.com.br/edition.php?id_edicao=140440");
         //controller.addSeed("https://www.ogol.com.br/edition.php?id_edicao=142460");
